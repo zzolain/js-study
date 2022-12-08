@@ -9,8 +9,8 @@
  * - [x] 추가한 메뉴 마크업은 `<ul id="espresso-menu-list" class="mt-3 pl-0"></ul>` 안에 삽입한다.
  * - [x] 변경된 총 메뉴 갯수를 상단에 출력한다.
  * 메뉴 수정
- * - [ ] 수정 버튼을 누르면 수정 prompt 창을 출력한다.
- * - [ ] prompt 창은 브라우저 prompt 인터페이스를 이용한다.
+ * - [x] 수정 버튼을 누르면 수정 prompt 창을 출력한다.
+ * - [x] prompt 창은 브라우저 prompt 인터페이스를 이용한다.
  * 메뉴 삭제
  * - [ ] 삭제 버튼을 누르면 삭제 확인 confirm 창을 출력한다.
  * - [ ] confirm 창은 브라우저 confirm 인터페이스를 이용한다.
@@ -24,6 +24,13 @@ function App() {
     // Form 태그 자동으로 전송되는 것을 막음
     $('#espresso-menu-form').addEventListener('submit', (e) => {
         e.preventDefault();
+    });
+
+    // 메뉴 이름 입력 받기
+    $('#espresso-menu-name').addEventListener('keypress', (e) => {
+        // 엔터키를 누르면 메뉴를 추가한다.
+        if (e.key !== 'Enter') return;
+        addEspressoMenuName();
     });
 
     const addEspressoMenuName = () => {
@@ -51,7 +58,6 @@ function App() {
         </li>
        `;
         // 메뉴 목록 마지막에 메뉴를 덧붙인다.
-        const $espressoMenuList = $('#espresso-menu-list');
         $espressoMenuList.insertAdjacentHTML(
             'beforeend',
             menuItemTemplate($espressoMenuName.value)
@@ -67,12 +73,17 @@ function App() {
         addEspressoMenuName();
     });
 
-    // 메뉴 이름 입력 받기
-    $('#espresso-menu-name').addEventListener('keypress', (e) => {
-        // 엔터키를 누르면 메뉴를 추가한다.
-        if (e.key !== 'Enter') return;
-        addEspressoMenuName();
-    });
+    // 메뉴 수정
+    const $espressoMenuList = $('#espresso-menu-list');
+    $espressoMenuList.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('menu-edit-button')) return;
+        const $menuName = e.target.closest('li').querySelector('.menu-name');
+        $menuName.innerText = prompt(
+            '메뉴명을 입력해 주세요.',
+            $menuName.innerText
+        );
+    })
+
 }
 
 App();
