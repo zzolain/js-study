@@ -12,9 +12,9 @@
  * - [x] 수정 버튼을 누르면 수정 prompt 창을 출력한다.
  * - [x] prompt 창은 브라우저 prompt 인터페이스를 이용한다.
  * 메뉴 삭제
- * - [ ] 삭제 버튼을 누르면 삭제 확인 confirm 창을 출력한다.
- * - [ ] confirm 창은 브라우저 confirm 인터페이스를 이용한다.
- * - [ ] 변경된 총 메뉴 갯수를 상단에 출력한다.
+ * - [x] 삭제 버튼을 누르면 삭제 확인 confirm 창을 출력한다.
+ * - [x] confirm 창은 브라우저 confirm 인터페이스를 이용한다.
+ * - [x] 변경된 총 메뉴 갯수를 상단에 출력한다.
  *
  */
 
@@ -32,6 +32,12 @@ function App() {
         if (e.key !== 'Enter') return;
         addEspressoMenuName();
     });
+
+    function updateMenuCount() {
+        // 메뉴 카운트를 업데이트한다.
+        const menuCount = $espressoMenuList.querySelectorAll('li').length;
+        $('.menu-count').innerText = `총 ${menuCount} 개`;
+    }
 
     const addEspressoMenuName = () => {
         // 단, 빈 값이면 alert을 출력한다.
@@ -62,9 +68,7 @@ function App() {
             'beforeend',
             menuItemTemplate($espressoMenuName.value)
         );
-        // 메뉴 카운트를 업데이트한다.
-        const menuCount = $espressoMenuList.querySelectorAll('li').length;
-        $('.menu-count').innerText = `총 ${menuCount} 개`;
+        updateMenuCount();
         // input 초기화
         $espressoMenuName.value = '';
     };
@@ -73,15 +77,24 @@ function App() {
         addEspressoMenuName();
     });
 
-    // 메뉴 수정
+    // 메뉴 수정 & 삭제
     const $espressoMenuList = $('#espresso-menu-list');
     $espressoMenuList.addEventListener('click', (e) => {
-        if (!e.target.classList.contains('menu-edit-button')) return;
-        const $menuName = e.target.closest('li').querySelector('.menu-name');
-        $menuName.innerText = prompt(
-            '메뉴명을 입력해 주세요.',
-            $menuName.innerText
-        );
+        // 수정
+        if (e.target.classList.contains('menu-edit-button')) {
+            const $menuName = e.target.closest('li').querySelector('.menu-name');
+            $menuName.innerText = prompt(
+                '메뉴명을 입력해 주세요.',
+                $menuName.innerText
+            );
+            return;
+        }
+        // 삭제
+        if (e.target.classList.contains('menu-remove-button')) {
+            if (!confirm('삭제 하시겠습니까?')) return;
+            e.target.closest('li').remove();
+            updateMenuCount();
+        }
     })
 
 }
