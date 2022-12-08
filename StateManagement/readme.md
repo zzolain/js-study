@@ -1,5 +1,6 @@
 # VanillaJS로 구현하는 상태 관리 가능 카페 메뉴 앱
-- [original repo](https://github.com/blackcoffee-study/moonbucks-menu)
+## 참고 강의
+- [블랙커피 Vanilla JS Lv1. 문벅스 카페 메뉴 앱 만들기](https://www.udemy.com/course/vanilla-js-lv1/)
 ## 요구사항
 - [ ] 에스프레소 메뉴에 새로운 메뉴를 확인 버튼 또는 엔터키 입력으로 추가한다.
   - [ ] 메뉴가 추가되고 나면, input은 빈 값으로 초기화한다.
