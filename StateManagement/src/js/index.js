@@ -34,21 +34,13 @@
  * - [x] 페이지에 최초로 접근할 때 localStorage에서 에스프레소 메뉴를 읽어온다.
  * - [x] 불러온 에스프레소 메뉴를 출력한다.
  * 품절
- * - [ ] 품절 버튼을 추가한다.
- * - [ ] 품절 버튼을 누르면 상태값을 localStorage에 저장한다.
- * - [ ] 품절 버튼을 누르면 가장 가까운 부모 li 태그에 sold-out class를 추가한다.
+ * - [x] 품절 버튼을 추가한다.
+ * - [x] 품절 버튼을 누르면 상태값을 localStorage에 저장한다.
+ * - [x] 품절 버튼을 누르면 가장 가까운 부모 li 태그에 sold-out class를 추가한다.
  */
 
-const $ = (selector) => document.querySelector(selector);
-
-const store = {
-    set(menu) {
-        localStorage.setItem('menu', JSON.stringify(menu));
-    },
-    get() {
-        return localStorage.getItem('menu')
-    }
-}
+import { $ } from './utils/dom.js';
+import store from "./store";
 
 function App() {
     this.menu = {
@@ -64,13 +56,23 @@ function App() {
             this.menu = JSON.parse(store.get());
         }
         render();
+        initEventListeners();
     }
 
     const render = () => {
         $('#menu-list').innerHTML = this.menu[this.category]
             .map((item, index) => `
                <li data-menu-id="${index}" class="menu-list-item d-flex items-center py-2">
-                  <span class="w-100 pl-2 menu-name">${item.name}</span>
+                  <span class="
+                    ${item.soldOut ? 'sold-out' : ''}
+                    w-100 pl-2 menu-name
+                  ">${item.name}</span>
+                  <button
+                    type="button"
+                    class="bg-gray-50 text-gray-500 text-sm mr-1 menu-sold-out-button"
+                  >
+                    품절
+                  </button>
                   <button
                     type="button"
                     class="bg-gray-50 text-gray-500 text-sm mr-1 menu-edit-button"
@@ -83,14 +85,14 @@ function App() {
                   >
                     삭제
                   </button>
-               </li>
+                </li>
             `)
             .join('');
         updateMenuCount();
     }
 
     const updateMenuCount = () => {
-        const menuCount = $('#menu-list').querySelectorAll('li').length;
+        const menuCount = this.menu[this.category].length;
         $('.menu-count').innerText = `총 ${menuCount} 개`;
     }
 
@@ -108,48 +110,56 @@ function App() {
 
     const updateMenu = (e) => {
         const menuId = e.target.closest('li').dataset.menuId;
-        const $menuName = e.target.closest('li').querySelector('.menu-name');
-        $menuName.innerText = prompt(
+        this.menu[this.category][menuId].name = prompt(
             '메뉴명을 입력해 주세요.',
-            $menuName.innerText
+            this.menu[this.category][menuId].name
         );
-        this.menu[this.category][menuId].name = $menuName.innerText;
         store.set(this.menu);
+        render();
     }
 
     const removeMenu = (e) => {
         if (!confirm('삭제 하시겠습니까?')) return;
-        e.target.closest('li').remove();
         const menuId = e.target.closest('li').dataset.menuId;
         this.menu[this.category].splice(Number(menuId), 1);
         store.set(this.menu);
-        updateMenuCount();
+        render();
     }
 
-    $('#menu-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-    });
+    const soldOutMenu = (e) => {
+        const menuId = e.target.closest('li').dataset.menuId;
+        this.menu[this.category][menuId].soldOut = !this.menu[this.category][menuId].soldOut;
+        store.set(this.menu);
+        render();
+    }
 
-    $('#menu-name').addEventListener('keypress', (e) => {
-        if (e.key !== 'Enter') return;
-        addMenu();
-    });
+    const initEventListeners = () => {
+        $('#menu-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+        });
 
-    $('#menu-submit-button').addEventListener('click', addMenu);
+        $('#menu-name').addEventListener('keypress', (e) => {
+            if (e.key !== 'Enter') return;
+            addMenu();
+        });
 
-    $('#menu-list').addEventListener('click', (e) => {
-        if (e.target.classList.contains('menu-edit-button')) return updateMenu(e);
-        if (e.target.classList.contains('menu-remove-button')) return removeMenu(e);
-    })
+        $('#menu-submit-button').addEventListener('click', addMenu);
 
-    $('nav').addEventListener('click', (e) => {
-        const isCategoryButton = e.target.classList.contains('cafe-category-name');
-        if (isCategoryButton) {
-            this.category = e.target.dataset.categoryName;
-            $('#category-title').innerText = `${e.target.innerText} 메뉴 관리`;
-            render();
-        }
-    })
+        $('#menu-list').addEventListener('click', (e) => {
+            if (e.target.classList.contains('menu-edit-button')) return updateMenu(e);
+            if (e.target.classList.contains('menu-remove-button')) return removeMenu(e);
+            if (e.target.classList.contains('menu-sold-out-button')) return soldOutMenu(e);
+        })
+
+        $('nav').addEventListener('click', (e) => {
+            const isCategoryButton = e.target.classList.contains('cafe-category-name');
+            if (isCategoryButton) {
+                this.category = e.target.dataset.categoryName;
+                $('#category-title').innerText = `${e.target.innerText} 메뉴 관리`;
+                render();
+            }
+        })
+    }
 }
 
 const app = new App();
