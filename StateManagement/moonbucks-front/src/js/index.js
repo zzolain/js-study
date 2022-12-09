@@ -53,9 +53,9 @@
  * 리팩토링
  *  - [x] localStorage에 저장하는 로직은 지운다.
  * 사용자 경험
- *  - [] 중복되는 메뉴는 추가할 수 없다.
- *    - [] 입력값이 기존 메뉴 이름과 중복되는지 확인한다.
- *    - [] 중복되는 경우 추가, 수정 요청을 보내지 않는다.
+ *  - [x] 중복되는 메뉴는 추가할 수 없다.
+ *    - [x] 입력값이 기존 메뉴 이름과 중복되는지 확인한다.
+ *    - [x] 중복되는 경우 추가, 수정 요청을 보내지 않는다.
  *  - [] API 통신이 실패하는 경우 alert으로 예외처리를 진행한다.
  */
 
@@ -122,6 +122,15 @@ function App() {
     const $menuName = $("#menu-name");
     if ($menuName.value === "") {
       alert("값을 입력해 주세요.");
+      return;
+    }
+
+    const duplicatedItem = this.menu[this.category].find(
+      (menu) => menu.name === $menuName.value
+    );
+    if (duplicatedItem) {
+      alert("이미 등록된 메뉴입니다. 다시 입력해 주세요.");
+      $menuName.value = "";
       return;
     }
     await MenuApi.createMenu(this.category, $menuName.value);
